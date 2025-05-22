@@ -1,0 +1,51 @@
+  @import "tailwindcss";
+
+/* Base input styles (applies to both themes unless overridden) */
+input {
+  padding: 5px 10px;
+  font-weight: 500;
+  border-radius: 9px;
+  transition: border 0.3s, background-color 0.3s, color 0.3s;
+  outline: none;
+  border: 1px solid transparent;
+}
+
+/* hide-horizontal-scrollbar.css */
+.hide-scrollbar-x {
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+.hide-scrollbar-x::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}
+
+/* Light Theme: default */
+@media (prefers-color-scheme: light) {
+  input {
+    background-color: #f9f9f9;
+    color: #222;
+    border-color: #ccc;
+  }
+
+  input:focus {
+    background-color: #fff;
+    border-color: #007bff;
+  }
+}
+
+/* Dark Theme */
+@media (prefers-color-scheme: dark) {
+  input {
+    background-color: #222;
+    color: #f1f1f1;
+    border-color: #555;
+  }
+
+  input:focus {
+    background-color: #2a2a2a;
+    border-color: #66afe9;
+  }
+}
+
