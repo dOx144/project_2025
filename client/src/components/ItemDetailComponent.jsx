@@ -64,7 +64,7 @@ const ItemDetailComponent = ({data,userLoggedIn,onUpdate}) => {
         <div className="ring-1 flex w-full justify-between gap-10 py-4 flex-col md:flex-row items-center transition-all *:transition-all **:transition-all px-2 hover:rounded-md hover:shadow-xl hover:ring-green-400">
             {/* product image */}
             <div className="w-full md:w-1/2 rounded-md overflow-hidden group">
-                <img className="w-ful h-full group-hover:scale-105 duration-1000" src={image_url} alt={title} />
+                <img className="w-full h-full group-hover:scale-105 duration-1000" src={image_url} alt={title} />
             </div>
 
             {/* item details */}

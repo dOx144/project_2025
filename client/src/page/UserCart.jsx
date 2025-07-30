@@ -55,6 +55,7 @@ const UserCart = () => {
                                         <a href={`/item/${el.title + "=it_id" + el.id}`} className="text-2xl hover:underline">{el.title}</a>
                                         <p>{el.description}</p>
                                         <p>Posted by : {el.seller_name}</p>
+                                        <p>Status: {el.is_verified ? "Verified 🟢" : "Not Verified 🔴"}</p>
                                     </div>
                                     <div>
                                         <p>Ends at: {new Date(el.ends_at).toLocaleString()}</p>

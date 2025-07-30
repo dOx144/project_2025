@@ -73,7 +73,7 @@ const BidItem = ({data, userLoggedIn, onUpdate}) => {
         value={customBid}
         onChange={(e) => {
           setCustomBid(e.target.value);
-          setSelectedBid(''); // Clear select if custom is used
+          setSelectedBid(''); 
         }}
       />
 

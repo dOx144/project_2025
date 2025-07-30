@@ -2,7 +2,7 @@ import Item from "./Item";
 
 const ItemSuggestion = ({data, itemId, userLoggedIn}) => {
     return ( 
-        <div>
+        <div className="space-y-4">
             <h2 className="text-2xl lg:text-4xl font-semibold">Watch out for these items <span className="font-semibold">Just for you</span>.</h2>
 
             {/* contents */}

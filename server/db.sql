@@ -107,3 +107,82 @@ WHERE starting_price IS NOT NULL AND current_price IS NOT NULL;
 
 ALTER TABLE items
 ADD COLUMN is_verified BOOLEAN DEFAULT FALSE;
+
+
+CREATE TABLE items (
+    id SERIAL PRIMARY KEY,
+    title TEXT,
+    description TEXT,
+    image_url TEXT DEFAULT 'http://localhost:3000/api/uploads/default_item_placeholder.png',
+    tags TEXT[],
+    starting_price NUMERIC,
+    current_price NUMERIC,
+    owner_id INTEGER REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ends_at TIMESTAMP,
+    is_verified BOOLEAN DEFAULT FALSE,
+    recent_bidder VARCHAR(100),
+    bidder_id INT
+);
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    role VARCHAR(20) DEFAULT 'user',
+    profile_pic TEXT DEFAULT 'http://localhost:3000/api/uploads/default_profile.png',
+    is_verified BOOLEAN DEFAULT FALSE
+);
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    role VARCHAR(20) DEFAULT 'user',
+    profile_pic TEXT DEFAULT 'http://localhost:3000/api/uploads/default_profile.png',
+    is_verified BOOLEAN DEFAULT FALSE,
+    user_interest TEXT
+);
+
+-- Items for User 1
+INSERT INTO items (title, description, tags, starting_price, current_price, owner_id, ends_at, is_verified, recent_bidder, bidder_id)
+VALUES 
+('Vintage Clock', 'A beautiful old-fashioned clock.', ARRAY['vintage', 'home'], 500, 800, 1, NOW() + interval '5 days', TRUE, 'user5', 5),
+('Wooden Chair', 'Handcrafted wooden chair.', ARRAY['furniture', 'wood'], 1000, 1300, 1, NOW() + interval '3 days', TRUE, NULL, NULL),
+('Antique Vase', 'Rare porcelain vase from the 19th century.', ARRAY['antique', 'decor'], 2000, 2000, 1, NOW() + interval '7 days', FALSE, NULL, NULL);
+
+-- Items for User 2
+INSERT INTO items (title, description, tags, starting_price, current_price, owner_id, ends_at, is_verified, recent_bidder, bidder_id)
+VALUES 
+('Gaming Laptop', 'High-end specs, slightly used.', ARRAY['electronics', 'gaming'], 50000, 56000, 2, NOW() + interval '2 days', TRUE, 'user3', 3),
+('Smartphone', 'Latest model, brand new.', ARRAY['electronics', 'phone'], 40000, 45000, 2, NOW() + interval '4 days', TRUE, NULL, NULL),
+('Bluetooth Speaker', 'Portable speaker with great bass.', ARRAY['audio', 'music'], 2500, 2600, 2, NOW() + interval '1 day', FALSE, NULL, NULL);
+
+-- Items for User 3
+INSERT INTO items (title, description, tags, starting_price, current_price, owner_id, ends_at, is_verified, recent_bidder, bidder_id)
+VALUES 
+('Mountain Bike', 'All-terrain bike with gears.', ARRAY['outdoor', 'sports'], 12000, 13500, 3, NOW() + interval '6 days', TRUE, 'user1', 1),
+('Tent', '2-person camping tent.', ARRAY['camping', 'gear'], 3000, 3000, 3, NOW() + interval '5 days', FALSE, NULL, NULL),
+('Hiking Backpack', 'Waterproof and large capacity.', ARRAY['outdoor', 'hiking'], 2000, 2500, 3, NOW() + interval '2 days', TRUE, 'user4', 4);
+
+-- Items for User 4
+INSERT INTO items (title, description, tags, starting_price, current_price, owner_id, ends_at, is_verified, recent_bidder, bidder_id)
+VALUES 
+('Bookshelf', '5-layer wooden bookshelf.', ARRAY['furniture', 'wood'], 4000, 4700, 4, NOW() + interval '4 days', TRUE, NULL, NULL),
+('Office Desk', 'Minimalist style desk.', ARRAY['furniture', 'office'], 6000, 6500, 4, NOW() + interval '3 days', FALSE, NULL, NULL),
+('Table Lamp', 'LED reading lamp.', ARRAY['lighting', 'decor'], 1200, 1300, 4, NOW() + interval '1 day', TRUE, 'user2', 2);
+
+-- Items for User 5
+INSERT INTO items (title, description, tags, starting_price, current_price, owner_id, ends_at, is_verified, recent_bidder, bidder_id)
+VALUES 
+('Headphones', 'Noise-cancelling over-ear headphones.', ARRAY['audio', 'electronics'], 3000, 3300, 5, NOW() + interval '2 days', TRUE, NULL, NULL),
+('Mechanical Keyboard', 'RGB lighting with blue switches.', ARRAY['gaming', 'keyboard'], 5000, 5200, 5, NOW() + interval '3 days', FALSE, NULL, NULL),
+('Gaming Mouse', 'Adjustable DPI and programmable buttons.', ARRAY['gaming', 'accessory'], 2000, 2200, 5, NOW() + interval '4 days', TRUE, 'user1', 1);
+
+
+UPDATE items SET image_url = "http://localhost:3000/api/uploads/Vintage_Clock.jpg" WHERE title = 'Vintage Clock';

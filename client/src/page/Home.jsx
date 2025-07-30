@@ -4,6 +4,8 @@ import Header from "../components/Header";
 import Item from "../components/Item";
 import Loading from "../components/Loading";
 import LatestFeature from "../components/LatestFeature";
+import GetUserInterest from "../components/GetUserInterest";
+import UserInterests from "../components/UserInterests";
 
 const Home = () => {
     const userLoggedIn = JSON.parse(localStorage.getItem('userData')) || JSON.parse(sessionStorage.getItem('userData'))
@@ -15,7 +17,27 @@ const Home = () => {
     const [selectedTag, setSelectedTag] = useState('');     
     const [sortOption, setSortOption] = useState('default');
     const listToDisplay = selectedTag ? filteredItems : items;
+    const [userInterestedItems, setUserInterestedItems] = useState([])
 
+    const filterItem = (dataItems) => {
+    if (!userLoggedIn?.user_interest || !Array.isArray(dataItems)) return [];
+
+    const userInterests = Array.isArray(userLoggedIn.user_interest)
+        ? userLoggedIn.user_interest
+        : userLoggedIn.user_interest.split(',').map(i => i.trim());
+
+    const filteredInterests = dataItems.filter(item => {
+        if (!item.user_interest) return false;
+
+        const itemInterests = Array.isArray(item.user_interest)
+            ? item.user_interest
+            : item.user_interest.split(',').map(i => i.trim());
+
+        return itemInterests.some(interest => userInterests.includes(interest));
+    });
+
+    return filteredInterests;
+    };
 
     const handleTagFilter = (e) => {
         setSelectedTag(e.target.value);
@@ -31,6 +53,7 @@ const Home = () => {
             }
 
             const data = await res.json()
+            
             setItems(data.result)
             setFilterTags(['All', ...new Set(data.result.flatMap(el => el.tags))]);
         }catch(err){
@@ -70,17 +93,31 @@ const Home = () => {
     setFilteredItems(result);
     }, [selectedTag, sortOption, items]);
 
-    
-
     if(isLoading) return <Loading/>
     
     return ( 
         <div className="dark:bg-[#1E1E1E] dark:text-white bg-[#fff] min-h-screen flex flex-col">
+
+        {/* user interest */}
+        {userLoggedIn && (!userLoggedIn.user_interest || userLoggedIn.user_interest.length === 0) && (
+        <div className="overflow-hidden z-10 absolute w-full h-screen grid place-content-center bg-[#000000D9] backdrop-blur-md">
+            <GetUserInterest tags={filterTags} />
+        </div>
+        )}
+
             <div className="flex-grow flex flex-col justify-between items-center space-y-4 w-full max-w-4xl mx-auto px-4 lg:p-0">
                 <Header/>
 
+                {/* home hero */}
+                <div className="ring-1 w-full">
+                    <img className=" object-contain w-full max-h-[350px]" src='http://localhost:3000/api/uploads/app_logo.png' alt="" />
+                </div>
+
                 {/* content */}
                 <main className="flex-grow flex flex-col items-start w-full space-y-4">
+
+                    {/* similar user defined items */}
+                    <UserInterests />
 
                     {/* latest items */}
                      <div>

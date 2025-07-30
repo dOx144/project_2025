@@ -23,7 +23,7 @@ if (!fs.existsSync(uploadDir)) {
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/'); // ensure this folder exists
+        cb(null, 'uploads/');
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -80,6 +80,67 @@ app.post("/api/users", async(req, res)=>{
         })
     }
 })
+
+//get all users names
+app.get('/api/usernames', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT username FROM users');
+    res.json(result.rows); // returns [{ username: 'user1' }, { username: 'user2' }, ...]
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+//get user detail
+app.get("/api/userdetails/:id", async (req, res) => {
+  const { id } = req.params; // get id from route params, not body
+
+  try {
+    const result = await pool.query(
+      'SELECT * FROM users WHERE username = $1',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json(result.rows[0]); // return single user object
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+// Update user interests
+app.post("/api/users/updateInterest", async (req, res) => {
+  const { userId, interests } = req.body;
+
+  // Validate input
+  if (!userId || !Array.isArray(interests) || interests.length === 0) {
+    return res.status(400).json({ message: "Invalid request: userId and non-empty interests array are required" });
+  }
+
+  try {
+    // Update user_interest as a proper array
+    const result = await pool.query(
+      "UPDATE users SET user_interest = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *",
+      [interests, userId] // Pass actual array
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "User interests updated", user: result.rows[0] });
+  } catch (error) {
+    console.error("Error updating interests:", error.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 // checks if the user exists or not then sends some data
 app.post("/api/login", async (req, res) => {
