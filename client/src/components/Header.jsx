@@ -58,8 +58,8 @@ const Header = () => {
                         </button>
                     </form> */}
                     <a href={`/user/${userLoggedIn.username}`} className=" ring-1 group cursor-pointer hover:ring-1 rounded-md p-2 flex items-center gap-2">
-                        <p className=" hidden group-hover:block">
-                        {userLoggedIn.username}
+                        <p className=" hidden group-hover:block max-w-16 line-clamp-1">
+                        {userLoggedIn.username.split(' ')[0]}
                         </p>
                         <CiUser className="size-6" title="User" />
                     </a>

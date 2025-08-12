@@ -49,3 +49,12 @@ input {
   }
 }
 
+.user-information {
+  all: unset;
+
+  outline: 1px solid black;
+  padding: 5px ;
+}
+.user-information:focus {
+  background-color: white;
+}

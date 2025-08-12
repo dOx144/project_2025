@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const LatestFeature = ({data}) => {
       const [timeLeft, setTimeLeft] = useState(getTimeDifference());
@@ -42,20 +43,20 @@ const LatestFeature = ({data}) => {
               }, [data.created_at, data.ends_at]);
 
     return ( 
-        <div className="min-w-2/5 flex flex-col justify-between ring-1 transition-all *:transition-all **:transition-all p-2 group shadow-md">
+        <div className="min-w-2/5 flex flex-col justify-between ring-1 gap-2 transition-all *:transition-all text-slate-50/70 **:transition-all p-2 group shadow-md">
             <div>
-                <div className="w-full overflow-hidden">
-                    <img className=" group-hover:scale-105 duration-1000" src={data.image_url} alt={data.title} />
+                <div className="w-full max-h-[200px] overflow-hidden">
+                    <img className=" object-cover w-full group-hover:scale-105 duration-1000" src={data.image_url} alt={data.title} />
                 </div>
-                <div className="*:font-semibold">
-                    <a href={`/item/${data.title + "=it_id" + data.id}`} className="text-xl lg:text-2xl cursor-pointer hover:underline">{data.title}</a>
-                    <p className="">{data.description}</p>
+                <div className="*:font-semibold text-sm">
+                    <Link to={`/item/${data.title + "=it_id" + data.id}`} className="text-xl text-white lg:text-2xl cursor-pointer hover:underline">{data.title}</Link>
+                    <p className=" line-clamp-3">{data.description}</p>
                     <p className="text-sm">Tags : {data.tags.map(el => el[0].toUpperCase() + el.slice(1)).join(', ')}</p>
                 </div>
             </div>
 
             <div className="w-full justify-between  flex gap-2 items-center">
-                <p>Posted by: {data.seller_name} </p>
+                <p>Posted by: <Link to={`/user/${data.seller_name }`}> {data.seller_name} </Link> </p>
                 <p>Currently at: {data.current_price}</p>
             </div>
 

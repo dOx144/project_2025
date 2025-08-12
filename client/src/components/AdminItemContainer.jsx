@@ -40,7 +40,7 @@ const AdminItemContainer = ({data, onRefresh}) => {
                         className="h-16 w-16 object-cover rounded"
                         />
                     </td>
-                    <td className="border p-2">{data.description}</td>
+                    <td className="border p-2 line-clamp-5">{data.description}</td>
                     <td className="border p-2">{data.seller}</td>
                     <td className="border p-2">
                        {data.is_verified? <p>✅</p> : <p>❌</p>}

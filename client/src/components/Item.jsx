@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 const Item = ({userLoggedIn, data}) => {
     
     // console.log(data);
-    const {id,title,description, seller_name, current_price, created_at, ends_at, image_url, tags} = data
+    const {id,title,description, seller_name, current_price, created_at, ends_at,is_verified, image_url, tags} = data
 
       const [timeLeft, setTimeLeft] = useState(getTimeDifference());
         const isCountdownActive = timeLeft.days > 0 || timeLeft.hours > 0 || timeLeft.minutes > 0 || timeLeft.seconds > 0;
@@ -52,8 +52,8 @@ const Item = ({userLoggedIn, data}) => {
         <div className="flex flex-col sm:flex-row  p-2 gap-2 hover:ring-1 transition-all *:transition-all **:transition-all group/mycard w-full justify-between">
 
             {/* image section */}
-            <div className="w-full sm:max-h-full sm:w-1/2 rounded-md overflow-hidden group">
-                <img className=" w-full h-full object-contain group-hover:scale-[110%] duration-1000" src={image_url} alt="Item_placeholder" />
+            <div className="w-full size-50 sm:max-h-full sm:w-1/2 rounded-md overflow-hidden group">
+                <img className=" w-full h-full object-cover group-hover:scale-[110%] duration-1000" src={image_url} alt="Item_placeholder" />
             </div>
 
             
@@ -68,8 +68,18 @@ const Item = ({userLoggedIn, data}) => {
 
                 {/* owner / bids */}
                 <div>
-                    <p className='text-sm '>Placed by : <span className="font-semibold">{seller_name || 'not_set'}</span></p>
-                    
+                    <p className="text-sm flex gap-2 items-baseline">
+                    Placed by :{" "}
+                    <span className="font-semibold">
+                        {seller_name ? (
+                        <Link to={`/user/${seller_name}`}>{seller_name}</Link>
+                        ) : (
+                        "not_set"
+                        )}
+                    </span>
+                    <span title={is_verified ? "Item is Verified" : "Item is not verified yet."}>{is_verified ? "🟢" : "🔴"}</span>
+                    </p>
+
                     {/* bid options  */}
                     <div className="flex w-full justify-between items-center ">
                         <div>
@@ -79,7 +89,7 @@ const Item = ({userLoggedIn, data}) => {
                         {/* bid options */}
                         {userLoggedIn ?
                         <div>
-                            <Link to={`/item/${title + "=it_id" + id}`} className="p-2 font-semibold hover:underline hover:text-red-400 hover:ring-1 hover:rounded-md active:scale-95 ring-1 ">Add your Bid</Link>
+                            {isCountdownActive ? <Link to={`/item/${title + "=it_id" + id}`} className="p-2 font-semibold hover:underline hover:text-red-400 hover:ring-1 hover:rounded-md active:scale-95 ring-1 ">Add your Bid</Link> : null}
                         </div>
                         :
                         <div>

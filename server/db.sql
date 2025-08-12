@@ -125,6 +125,66 @@ CREATE TABLE items (
     bidder_id INT
 );
 
+CREATE TABLE items (
+    id SERIAL PRIMARY KEY,
+    title TEXT,
+    description TEXT,
+    image_url TEXT DEFAULT 'http://localhost:3000/api/uploads/default_item_placeholder.png',
+    tags TEXT[],
+    starting_price NUMERIC,
+    current_price NUMERIC,
+    owner_id INTEGER REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ends_at TIMESTAMP,
+    is_verified BOOLEAN DEFAULT FALSE,
+    recent_bidder VARCHAR(100),
+    bidder_id INT,
+    bidder_history JSONB DEFAULT '[]' -- Stores array of bidder records [{bidder_id, bidder_name, bid_amount, bid_time}]
+);
+
+
+CREATE TABLE items (
+    id SERIAL PRIMARY KEY,
+    
+    -- Core item info
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    image_url TEXT DEFAULT 'http://localhost:3000/api/uploads/default_item_placeholder.png',
+    tags TEXT[],
+    category TEXT NOT NULL,         -- NEW
+    condition TEXT NOT NULL,        -- NEW
+    location TEXT NOT NULL,         -- NEW
+    
+    -- Pricing & auction
+    starting_price NUMERIC NOT NULL,
+    current_price NUMERIC,
+    reserve_price NUMERIC,          -- NEW
+    buy_now_price NUMERIC,          -- NEW
+    bid_increment NUMERIC NOT NULL, -- NEW
+    currency TEXT NOT NULL DEFAULT 'NPR', -- NEW
+    
+    -- Auction timing
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ends_at TIMESTAMP NOT NULL,
+    auction_start TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- NEW
+
+    -- Shipping & Payment
+    shipping_option TEXT NOT NULL,  -- NEW
+    return_policy TEXT,             -- NEW
+    payment_methods TEXT[],         -- NEW
+    
+    -- Images & Status
+    images TEXT[],                  -- NEW
+    is_verified BOOLEAN DEFAULT FALSE,
+    status TEXT DEFAULT 'active',   -- NEW
+    
+    -- Bidding & ownership
+    owner_id INTEGER REFERENCES users(id),
+    recent_bidder VARCHAR(100),
+    bidder_id INT
+);
+
+
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50),
@@ -186,3 +246,24 @@ VALUES
 
 
 UPDATE items SET image_url = "http://localhost:3000/api/uploads/Vintage_Clock.jpg" WHERE title = 'Vintage Clock';
+
+
+INSERT INTO items (image_url,title, description, tags, starting_price, current_price, owner_id, created_at, ends_at, is_verified)
+VALUES
+-- User 1: jakedox
+('http://localhost:3000/api/uploads/mountain_bike.jpg','Mountain Bike', 'A sturdy mountain bike perfect for trails.', ARRAY['vehicle', 'sports', 'outdoors', 'fitness'], 15000, 15000, 1, NOW(), NOW() + INTERVAL '7 days', TRUE),
+('http://localhost:3000/api/uploads/leather_jacket.jpg', 'Leather Jacket', 'Classic black leather jacket, size M.', ARRAY['fashion', 'clothing', 'vintage'], 8000, 8000, 1, NOW(), NOW() + INTERVAL '5 days', TRUE),
+
+-- User 2: luna
+('http://localhost:3000/api/uploads/electric_guitar.jpg','Electric Guitar', 'Fender Stratocaster, barely used.', ARRAY['instruments', 'music', 'collectibles', 'vintage'], 35000, 35000, 2, NOW(), NOW() + INTERVAL '14 days', TRUE),
+('http://localhost:3000/api/uploads/antique_base.jpg','Antique Vase', 'Beautiful hand-painted vintage vase.', ARRAY['vintage', 'art', 'collectibles'], 20000, 20000, 2, NOW(), NOW() + INTERVAL '10 days', TRUE),
+
+-- User 3: mike
+('http://localhost:3000/api/uploads/laptop.jpg','Used Laptop', 'Dell Latitude, good for office work.', ARRAY['electronics', 'computers', 'office'], 25000, 25000, 3, NOW(), NOW() + INTERVAL '3 days', FALSE),
+
+-- User 4: sara
+('http://localhost:3000/api/uploads/dining_table.jpg','Wooden Dining Table', 'Seats 6 people, oak wood.', ARRAY['furniture', 'home', 'woodwork', 'vintage'], 12000, 12000, 4, NOW(), NOW() + INTERVAL '15 days', TRUE),
+('http://localhost:3000/api/uploads/yoga_mat.jpg','Yoga Mat', 'Eco-friendly material, lightly used.', ARRAY['sports', 'fitness', 'health'], 1500, 1500, 4, NOW(), NOW() + INTERVAL '7 days', TRUE),
+
+-- User 5: admin
+('http://localhost:3000/api/uploads/diamond_ring.jpg','Diamond Ring', 'Elegant diamond ring, size 7.', ARRAY['jewelry', 'collectibles', 'luxury', 'vintage'], 120000, 120000, 5, NOW(), NOW() + INTERVAL '30 days', TRUE);

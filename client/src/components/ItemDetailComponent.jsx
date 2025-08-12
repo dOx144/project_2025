@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useState } from "react";
 import BidItem from "./BidItem";
+import { Link } from "react-router-dom";
 
 const ItemDetailComponent = ({data,userLoggedIn,onUpdate}) => {
 
@@ -16,6 +17,7 @@ const ItemDetailComponent = ({data,userLoggedIn,onUpdate}) => {
         current_price,
         created_at,
         ends_at,
+        is_verified
     } = data
 
     const [timeLeft, setTimeLeft] = useState(getTimeDifference());
@@ -63,14 +65,17 @@ const ItemDetailComponent = ({data,userLoggedIn,onUpdate}) => {
     return ( 
         <div className="ring-1 flex w-full justify-between gap-10 py-4 flex-col md:flex-row items-center transition-all *:transition-all **:transition-all px-2 hover:rounded-md hover:shadow-xl hover:ring-green-400">
             {/* product image */}
-            <div className="w-full md:w-1/2 rounded-md overflow-hidden group">
-                <img className="w-full h-full group-hover:scale-105 duration-1000" src={image_url} alt={title} />
+            <div className="size-[300px] w-1/2 rounded-md overflow-hidden group">
+                <img className="w-full h-full object-cover  group-hover:scale-105 duration-1000" src={image_url} alt={title} />
             </div>
 
             {/* item details */}
             <div className="w-full md:w-1/2 space-y-4">
                 <div>
-                    <h2 className="text-3xl font-semibold">{title}</h2>
+                    <div className="flex items-center gap-2 cursor-default">
+                        <h2 className="text-3xl font-semibold">{title}</h2>
+                        {is_verified && <p title="Item is Verified">✅</p>}
+                    </div>
                     <p>{description}</p>
                     <p>Tags: {tags?.map(el => el[0].toUpperCase() + el.slice(1)).join(', ')}</p>
                 </div>
@@ -81,7 +86,9 @@ const ItemDetailComponent = ({data,userLoggedIn,onUpdate}) => {
                     <div className="flex w-full justify-between py-2 gap-2">
                         <div className=" w-full max-w-1/2 flex flex-col justify-between">
                             <div>
-                                <p className="text-sm">From: {seller_name} </p>
+                                <p className="text-sm">From: 
+                                <Link to={`/user/${seller_name}`}>{seller_name}</Link>
+                                 </p>
                                 <p>Started from Rs. 
                                     <span className=" hover:underline">
                                         {starting_price}
@@ -101,14 +108,19 @@ const ItemDetailComponent = ({data,userLoggedIn,onUpdate}) => {
                                     </p>
                                 </div>
                         </div>
-                        {userLoggedIn && isCountdownActive && (
+                        
+                        {is_verified ? (userLoggedIn && isCountdownActive && (
                         <div className="max-w-1/2 w-full">
-                            {userLoggedIn.username === data.seller_name ? (
-                            <a href="/user/myItems" className="text-blue-500 underline">
+                            {userLoggedIn.id === data.owner_id ? 
+                            (
+                            <a href={`/user/${userLoggedIn.username}`} className="text-blue-500 underline">
                                 This is your item — go to My Items
                             </a>
                             ) : userLoggedIn.username === data.recent_bidder ? (
-                            <p>You already added the bid for this item</p>
+                             <>
+                                <p>You already added the bid for this item</p>
+                                <Link className="text-green-400 font-bold underline underline-offset-2" to={`/user/cartaa`}> GOTO cart</Link>
+                             </>
                             ) : (
                             <>
                                 <p>Add Your Bid</p>
@@ -116,7 +128,11 @@ const ItemDetailComponent = ({data,userLoggedIn,onUpdate}) => {
                             </>
                             )}
                         </div>
-                        )}
+                        )) : 
+                        <div className=" self-end">
+                            <p>{is_verified ? "Item Verified ✅" : "Item not Verified ❌"}</p>
+                            <p>Bets not Available</p>
+                        </div>}
 
                         {!userLoggedIn && 
                         <div className="grid items-center">
@@ -124,7 +140,7 @@ const ItemDetailComponent = ({data,userLoggedIn,onUpdate}) => {
                         </div>}
                     </div>
 
-                    <div className="flex w-full justify-between py-2">
+                    {is_verified ? (<div className="flex w-full justify-between py-2">
                         <div>
                             <p>Created at: {new Date(created_at).toLocaleDateString()}</p>
                             {isCountdownActive && <p>Ends at: {new Date(ends_at).toLocaleDateString()}</p>}
@@ -142,7 +158,7 @@ const ItemDetailComponent = ({data,userLoggedIn,onUpdate}) => {
                             )
                             }
                         </div>
-                    </div>
+                    </div>) : ""}
                 </div>
                 
             </div>

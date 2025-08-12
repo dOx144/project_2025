@@ -107,7 +107,7 @@ const AdminPanel = () => {
             <main className="w-full h-full ring-1 flex-grow">
                     {/* users panel */}
                     {isViewingUsers &&
-                    <AdminUserContainer onRefresh = {fetchAdminData} data = {userLists.result}/>
+                    <AdminUserContainer onRefresh = {fetchAdminData} setUserLists={setUserLists} data = {userLists.result}/>
                     }
 
                     {/* items panel */}

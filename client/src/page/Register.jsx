@@ -71,7 +71,7 @@ const Register = () => {
                     'Content-Type' : 'application/json',
                 },
                 body:JSON.stringify({
-                    username: userData.user_first.trim() + userData.user_last.trim(),
+                    username: userData.user_first.trim() + " " + userData.user_last.trim(),
                     email : userData.email,
                     password : userData.password
                 })

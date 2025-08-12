@@ -2,7 +2,7 @@ import { useState } from "react"
 import UserDeleteAction from "./UserDeleteAction";
 import AdminUserVerify from "./AdminUserVerify";
 
-const AdminUserContainer = ({data, onRefresh}) => {
+const AdminUserContainer = ({data, onRefresh, setUserLists}) => {
 
     // const [confirmDelete, setConfirmDelete] = useState(false)
 
@@ -81,7 +81,7 @@ const AdminUserContainer = ({data, onRefresh}) => {
                         : "N/A"}
                     </td>
                     <td className="border p-2 space-x-2 space-y-2">
-                        <AdminUserVerify data = {data} onVerify = {onRefresh} />
+                        <AdminUserVerify data = {data} setUserLists={setUserLists} onVerify = {onRefresh} />
                         <UserDeleteAction id={data.id} onDelete = {onRefresh}/>
                     </td>
                     </tr>

@@ -64,7 +64,7 @@ const Home = () => {
     }
 
     useEffect(()=>{
-        fetchData();
+        fetchData()
     },[])
 
     useEffect(() => {
@@ -100,7 +100,7 @@ const Home = () => {
 
         {/* user interest */}
         {userLoggedIn && (!userLoggedIn.user_interest || userLoggedIn.user_interest.length === 0) && (
-        <div className="overflow-hidden z-10 absolute w-full h-screen grid place-content-center bg-[#000000D9] backdrop-blur-md">
+        <div className="overflow-hidden z-10 absolute w-full h-screen grid place-content-center backdrop-blur-[2px]">
             <GetUserInterest tags={filterTags} />
         </div>
         )}
@@ -117,7 +117,7 @@ const Home = () => {
                 <main className="flex-grow flex flex-col items-start w-full space-y-4">
 
                     {/* similar user defined items */}
-                    <UserInterests />
+                    {userLoggedIn && <UserInterests userLoggedIn={userLoggedIn} items = {items}/>}
 
                     {/* latest items */}
                      <div>
@@ -125,17 +125,17 @@ const Home = () => {
                     
                         <div className="flex flex-col md:flex-row p-2 space-x-4 overflow-x-scroll w-full hide-scrollbar-x">
                             {/*Latest items */}
-                            {items
-                            .filter(item => item.is_verified || item.seller_verified)
-                            .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-                            .slice(0,3)
-                            .map((item, idx) =>(
-                                <LatestFeature
-                                    key={idx}
-                                    userLoggedIn={userLoggedIn}
-                                    data={item}
-                                />
-                                ))}
+                           {[...items]
+  .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // NEWEST first
+  .slice(0, 3)
+  .map((item, idx) => (
+    <LatestFeature
+      key={idx}
+      userLoggedIn={userLoggedIn}
+      data={item}
+    />
+))}
+
                         </div>
 
                         <div>
@@ -144,7 +144,7 @@ const Home = () => {
                                 <div>
                                     <p>Filter by:</p>
                                     <select
-                                    className="block w-full max-w-xs px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    className="block w-full max-w-xs px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     name="filter_item"
                                     id="filter_item"
                                     onChange={handleTagFilter}>
@@ -169,16 +169,17 @@ const Home = () => {
 
                             </div>
                            <div>
-                                {listToDisplay
-                                .filter(el => el.is_verified)
-                                .slice(0, 5)
-                                .map((item, idx) => (
-                                     <Item
-                                        key={idx}
-                                        userLoggedIn={userLoggedIn}
-                                        data={item}
-                                    />
-                                ))}
+                            {[...listToDisplay] // clone the array to avoid mutating original
+                                    .sort(() => Math.random() - 0.5) // simple random shuffle
+                                    .slice(0, 5)
+                                    .map((item, idx) => (
+                                        <Item
+                                            key={idx}
+                                            userLoggedIn={userLoggedIn}
+                                            data={item}
+                                        />
+                                    ))
+                                }
                             </div>
                         </div>
                     </div>

@@ -424,56 +424,227 @@ app.delete('/api/admin/delete_item/:id', async(req, res) => {
 // user 
 // item bid
 
-app.put('/api/user/item/bid', async(req, res) => {
+app.put('/api/user/item/bid', async (req, res) => {
+  const { owner_id, item_id, bidder_id, recent_bidder, new_bid } = req.body;
 
-   const { owner_id, item_id, bidder_id, recent_bidder, new_bid } = req.body;
-
-if (!owner_id || !item_id || !bidder_id || !recent_bidder || new_bid == null) {
-  return res.status(400).json({ error: "All fields are required." });
-}
-
-try {
-  //Get current bid from the item
-  const currentData = await pool.query(
-    `SELECT current_price FROM items WHERE id = $1`,
-    [item_id]
-  );
-
-  if (currentData.rows.length === 0) {
-    return res.status(404).json({ error: "Item not found." });
+  if (!owner_id || !item_id || !bidder_id || !recent_bidder || new_bid == null) {
+    return res.status(400).json({ error: "All fields are required." });
   }
 
-  const currentBid = currentData.rows[0].current_price;
+  try {
+    // Get current price
+    const currentData = await pool.query(
+      `SELECT current_price FROM items WHERE id = $1`,
+      [item_id]
+    );
 
-  // Check if new bid is higher than current
-  if (new_bid <= currentBid) {
-    return res.status(400).json({
-      error: `Your bid must be higher than the current bid (${currentBid}).`
+    if (currentData.rows.length === 0) {
+      return res.status(404).json({ error: "Item not found." });
+    }
+
+    const currentBid = currentData.rows[0].current_price;
+
+    if (new_bid <= currentBid) {
+      return res.status(400).json({
+        error: `Your bid must be higher than the current bid (${currentBid}).`
+      });
+    }
+
+    // Append new bid record to bidder_history
+    const bidRecord = {
+      bidder_id,
+      bidder_name: recent_bidder,
+      bid_amount: new_bid,
+      bid_time: new Date().toISOString()
+    };
+
+    const result = await pool.query(
+      `UPDATE items
+       SET 
+         recent_bidder = $1,
+         bidder_id = $2,
+         current_price = $3,
+         bidder_history = COALESCE(bidder_history, '[]'::jsonb) || $5::jsonb
+       WHERE id = $4
+       RETURNING *`,
+      [recent_bidder, bidder_id, new_bid, item_id, JSON.stringify([bidRecord])]
+    );
+
+    res.status(200).json({
+      message: "Bid placed successfully.",
+      item: result.rows[0]
     });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred while placing the bid." });
+  }
+});
+
+
+
+// GET user items based on username or user ID
+app.get('/api/user/:username', async (req, res) => {
+  const { username } = req.params;
+
+  if (!username) {
+    return res.status(400).json({ error: 'Username is required' });
   }
 
-  // Update the bid 
-  const result = await pool.query(
-    `UPDATE items SET 
-       recent_bidder = $1,
-       bidder_id = $2,
-       current_price = $3
-     WHERE id = $4
-     RETURNING *`,
-    [recent_bidder, bidder_id, new_bid, item_id]
-  );
+  try {
+    const userResult = await pool.query(
+      'SELECT id FROM users WHERE username = $1',
+      [username]
+    );
 
-  res.status(200).json({
-    message: "Bid placed successfully.",
-    item: result.rows[0]
-  });
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
 
-} catch (err) {
-  console.error(err);
-  res.status(500).json({ error: "An error occurred while placing the bid." });
-}
+    const userId = userResult.rows[0].id;
 
-})
+    // Step 2: Get items by user ID from items table
+    const itemsResult = await pool.query(
+      'SELECT * FROM items WHERE owner_id = $1',
+      [userId]
+    );
+
+    res.json(itemsResult.rows);
+  } catch (err) {
+    console.error('Error fetching user items:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// create item / add item
+app.post('/api/items/add', upload.single('item_image'), async (req, res) => {
+    try {
+        const file = req.file;
+        const {
+            title,
+            description,
+            category,
+            condition,
+            starting_price,
+            seller_id,
+            seller_name,
+            auction_time
+        } = req.body;
+
+        const image_url = file
+            ? `http://localhost:${port}/api/uploads/${file.filename}`
+            : 'http://localhost:3000/api/uploads/default_item_placeholder.png';
+
+        const tags = [category, condition];
+        const created_at = new Date();
+        const ends_at = auction_time ? new Date(auction_time) : null;
+        const current_price = starting_price;
+
+        const result = await pool.query(
+            `INSERT INTO items (
+                title, description, image_url, tags,
+                starting_price, current_price, owner_id,
+                created_at, ends_at, recent_bidder, bidder_id
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, '', NULL)
+            RETURNING *`,
+            [
+                title,
+                description,
+                image_url,
+                tags,
+                starting_price,
+                current_price,
+                seller_id,
+                created_at,
+                ends_at
+            ]
+        );
+
+        res.status(201).json({
+            message: "Item successfully added",
+            item: result.rows[0]
+        });
+
+    } catch (err) {
+        console.error("Error adding item:", err.message);
+        res.status(500).json({ error: "Failed to add item" });
+    }
+});
+
+// delete user item
+app.delete('/api/user/item_delete/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM items WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).send({ error: "Item not found or already deleted." });
+    }
+
+    res.send({
+      message: "Delete Successful",
+      response: `Item deleted with ID ${id}`
+    });
+  } catch (ex) {
+    res.status(500).send({ error: ex.message });
+  }
+});
+
+// update username and email
+app.post('/api/userdata/update', async (req, res) => {
+  try {
+    const { id, username, email } = req.body;
+
+    if (!id || !username || !email) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const result = await pool.query(
+      'UPDATE users SET username = $1, email = $2 WHERE id = $3 RETURNING *',
+      [username, email, id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found or not updated' });
+    }
+
+    res.json({ message: 'User updated successfully', user: result.rows[0] });
+  } catch (err) {
+    console.error('Update error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// get user betted item
+app.get('/api/user/item_bet/:id', async (req, res) => {
+  const { id } = req.params;
+
+  if (!id || isNaN(parseInt(id))) {
+    return res.status(400).json({ error: "Valid user ID is required" });
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT 
+         items.*, 
+         users.username AS seller_name 
+       FROM items 
+       JOIN users ON items.owner_id = users.id 
+       WHERE items.bidder_id = $1`,
+      [id]
+    );
+
+    res.status(200).json({ result: result.rows });
+  } catch (err) {
+    console.error("Error fetching user's bet items:", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 
 
 app.listen(port, () => {

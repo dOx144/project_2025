@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import { useEffect, useState } from "react";
 import ItemDetailComponent from "../components/ItemDetailComponent";
 import ItemSuggestion from "../components/ItemSuggestion";
+import UserRules from "../components/UserRules";
 
 const ItemDetail = () => {
 
@@ -25,7 +26,7 @@ const ItemDetail = () => {
             const data = await req.json()
 
             setItemData(data.item)
-            console.log(data.item);
+            // console.log(data.item);  
         }catch(err){
             console.error(err.message)
         }
@@ -46,7 +47,7 @@ const ItemDetail = () => {
 
             const data = await res.json()
             setSuggestItems(data?.result)
-            console.log(data?.result);
+            // console.log(data?.result);
         }catch(err){
             console.error(err.message)
         }
@@ -65,7 +66,7 @@ const ItemDetail = () => {
 
             const data = await res.json()
             setItems(data.result)
-            console.log(data.result);
+            // console.log(data.result);
         }catch(err){
             console.error(err.message)
         }finally{
@@ -91,6 +92,7 @@ const ItemDetail = () => {
 
     return ( 
         <div className="dark:bg-[#1E1E1E] dark:text-white bg-[#fff] min-h-screen flex flex-col">
+        <UserRules/>
         <div className="flex-grow flex flex-col justify-between items-center space-y-4 w-full max-w-4xl mx-auto px-4 lg:p-0">
 
                 <Header userLoggedIn = {userLoggedIn} items = {items}/>
@@ -105,7 +107,6 @@ const ItemDetail = () => {
             {suggestedItems && <ItemSuggestion data={suggestedItems} itemId ={itemData.id} userLoggedIn ={userLoggedIn}/>}
             
             </main>
-
             <Footer/>
         </div>
         </div>

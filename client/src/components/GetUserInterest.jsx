@@ -68,29 +68,45 @@ const UserInterest = ({tags}) => {
     };
 
     return ( 
-        <div className="ring-2 rounded-xl p-4">
+        <div className="ring-2 rounded-xl p-4 bg-slate-50/70 text-black">
         <h2 className="text-xl mb-2">Hello {userLoggedIn.username},</h2>
         <p className="mb-4">
             Please select at least 3 of your interests
         </p>
-    <div className="flex flex-col gap-4">
-    <div className=" min-w-lg flex gap-4">
-        <div className="w-1/2 space-y-4">
-          <select
-            className="w-full border border-gray-300 rounded-md p-2 min-h-[250px]"
+        <div className="flex flex-col gap-4">
+        <div className=" min-w-lg flex gap-4">
+            <div className="w-1/2 space-y-4">
+            <select
+            className="w-full border border-gray-300 rounded-md p-2 min-h-[250px] *:p-2 *:hover:bg-blue-600/40 *:hover:text-white *:active:bg-green-400"
             name="user_interest"
             id="user_interest"
             multiple
             size={5}
             >
-            {tags.map((tag, index) => {
+            {/* {tags.map((tag, index) => {
             if (tag === "All") return null; // skip rendering this option
                 return (
                 <option key={index} value={tag}>
                     {tag}
                 </option>
                 );
-            })}
+            })} */}
+                {/* <option value="">Select</option> */}
+                <option value="vehicle">Vehicle</option>
+                <option value="electronics">Electronics</option>
+                <option value="furniture">Furniture</option>
+                <option value="home_appliances">Home Appliances</option>
+                <option value="fashion">Fashion & Accessories</option>
+                <option value="books">Books</option>
+                <option value="toys">Toys & Games</option>
+                <option value="crafts">Handmade Crafts</option>
+                <option value="sports">Sports & Outdoors</option>
+                <option value="vintage">Vintage Items</option>
+                <option value="collectibles">Collectibles</option>
+                <option value="art">Art & Antiques</option>
+                <option value="instruments">Musical Instruments</option>
+                <option value="tools">Tools & Equipment</option>
+                <option value="jewelry">Jewelry</option>
           </select>
 
             <button

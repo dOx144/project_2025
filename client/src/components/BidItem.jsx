@@ -6,20 +6,32 @@ const BidItem = ({data, userLoggedIn, onUpdate}) => {
   const [selectedBid, setSelectedBid] = useState('');
 
 
- const handleAddBid = async () => {
-  const fetchUrl = `http://localhost:3000/api/user/item/bid`
-  const finalBid = customBid ? parseInt(customBid, 10) : parseInt(selectedBid, 10);
+const handleAddBid = async () => {
+  const fetchUrl = `http://localhost:3000/api/user/item/bid`;
+
+  const finalBid = customBid
+    ? parseInt(customBid, 10)
+    : parseInt(selectedBid, 10);
 
   if (isNaN(finalBid)) return;
 
   setUserBid(finalBid);
+
+  // Bid amount = final bid + current price (check logic if correct)
+  const newBidAmount = Number(finalBid) + Number(data.current_price);
 
   const bidData = {
     owner_id: data.owner_id,         
     item_id: data.id,
     bidder_id: userLoggedIn.id,
     recent_bidder: userLoggedIn.username,
-    new_bid: Number(finalBid) + Number(data.current_price)
+    new_bid: newBidAmount,
+    bidder_history: {
+      bidder_id: userLoggedIn.id,
+      bidder_name: userLoggedIn.username,
+      bid_amount: newBidAmount,
+      bid_date: new Date().toISOString()
+    }
   };
 
   try {
@@ -37,26 +49,28 @@ const BidItem = ({data, userLoggedIn, onUpdate}) => {
       throw new Error(result.error || 'Failed to place bid.');
     }
 
-    //User Notification
-    alert("Added Bid Successfully!!")
-    onUpdate()
+    alert("Added Bid Successfully!!");
+    console.log(result);
+    onUpdate();
 
   } catch (error) {
-    alert("Couldn't add the bid.")
-    console.error(error.message)
+    alert("Couldn't add the bid.");
+    console.error(error.message);
   }
 };
 
 
+
   return (
     <div className="w-full flex flex-col gap-2 max-w-xs">
+    <div className="space-y-2">
       <select
-        className="text-black ring-1 bg-white p-2"
+        className="text-black ring-1 bg-white p-2 w-full"
         name="item-bid"
         value={selectedBid}
         onChange={(e) => {
           setSelectedBid(e.target.value);
-          setCustomBid(''); 
+          setCustomBid(''); // Clear custom when predefined selected
         }}
       >
         <option value="">Select Bid</option>
@@ -66,16 +80,20 @@ const BidItem = ({data, userLoggedIn, onUpdate}) => {
         <option value="1000">1000</option>
       </select>
 
-      <input
-        type="number"
-        placeholder="Or enter custom bid"
-        className="text-black ring-1 p-2"
-        value={customBid}
-        onChange={(e) => {
-          setCustomBid(e.target.value);
-          setSelectedBid(''); 
-        }}
-      />
+      {selectedBid === 'custom' && (
+        <input
+          type="number"
+          placeholder="Or enter custom bid"
+          className="text-black ring-1 p-2 w-full"
+          value={customBid}
+          onChange={(e) => {
+            setCustomBid(e.target.value);
+          }}
+          min="1"
+        />
+      )}
+    </div>
+
 
       <button
         className="w-full ring-1 bg-blue-500 text-white p-2 hover:bg-blue-600"
