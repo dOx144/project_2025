@@ -248,22 +248,131 @@ VALUES
 UPDATE items SET image_url = "http://localhost:3000/api/uploads/Vintage_Clock.jpg" WHERE title = 'Vintage Clock';
 
 
-INSERT INTO items (image_url,title, description, tags, starting_price, current_price, owner_id, created_at, ends_at, is_verified)
+INSERT INTO items (
+    image_url, title, description, tags, starting_price, current_price, owner_id, created_at, ends_at, is_verified, bidder_history
+)
 VALUES
 -- User 1: jakedox
-('http://localhost:3000/api/uploads/mountain_bike.jpg','Mountain Bike', 'A sturdy mountain bike perfect for trails.', ARRAY['vehicle', 'sports', 'outdoors', 'fitness'], 15000, 15000, 1, NOW(), NOW() + INTERVAL '7 days', TRUE),
-('http://localhost:3000/api/uploads/leather_jacket.jpg', 'Leather Jacket', 'Classic black leather jacket, size M.', ARRAY['fashion', 'clothing', 'vintage'], 8000, 8000, 1, NOW(), NOW() + INTERVAL '5 days', TRUE),
+('http://localhost:3000/api/uploads/mountain_bike.jpg','Mountain Bike', 'A sturdy mountain bike perfect for trails.', ARRAY['vehicle', 'sports', 'outdoors', 'fitness'], 15000, 15000, 1, NOW(), NOW() + INTERVAL '7 days', TRUE,
+ '[{"bidder_id":2,"bidder_name":"luna","bid_amount":15500,"bid_time":"2025-08-10T10:00:00Z"}]'),
+
+('http://localhost:3000/api/uploads/leather_jacket.jpg', 'Leather Jacket', 'Classic black leather jacket, size M.', ARRAY['fashion', 'clothing', 'vintage'], 8000, 8000, 1, NOW(), NOW() + INTERVAL '5 days', TRUE,
+ '[]'),
 
 -- User 2: luna
-('http://localhost:3000/api/uploads/electric_guitar.jpg','Electric Guitar', 'Fender Stratocaster, barely used.', ARRAY['instruments', 'music', 'collectibles', 'vintage'], 35000, 35000, 2, NOW(), NOW() + INTERVAL '14 days', TRUE),
-('http://localhost:3000/api/uploads/antique_base.jpg','Antique Vase', 'Beautiful hand-painted vintage vase.', ARRAY['vintage', 'art', 'collectibles'], 20000, 20000, 2, NOW(), NOW() + INTERVAL '10 days', TRUE),
+('http://localhost:3000/api/uploads/electric_guitar.jpg','Electric Guitar', 'Fender Stratocaster, barely used.', ARRAY['instruments', 'music', 'collectibles', 'vintage'], 35000, 35000, 2, NOW(), NOW() + INTERVAL '14 days', TRUE,
+ '[{"bidder_id":3,"bidder_name":"mike","bid_amount":36000,"bid_time":"2025-08-11T12:30:00Z"}]'),
+
+('http://localhost:3000/api/uploads/antique_base.jpg','Antique Vase', 'Beautiful hand-painted vintage vase.', ARRAY['vintage', 'art', 'collectibles'], 20000, 20000, 2, NOW(), NOW() + INTERVAL '10 days', TRUE,
+ '[]'),
 
 -- User 3: mike
-('http://localhost:3000/api/uploads/laptop.jpg','Used Laptop', 'Dell Latitude, good for office work.', ARRAY['electronics', 'computers', 'office'], 25000, 25000, 3, NOW(), NOW() + INTERVAL '3 days', FALSE),
+('http://localhost:3000/api/uploads/laptop.jpg','Used Laptop', 'Dell Latitude, good for office work.', ARRAY['electronics', 'computers', 'office'], 25000, 25000, 3, NOW(), NOW() + INTERVAL '3 days', FALSE,
+ '[]'),
 
 -- User 4: sara
-('http://localhost:3000/api/uploads/dining_table.jpg','Wooden Dining Table', 'Seats 6 people, oak wood.', ARRAY['furniture', 'home', 'woodwork', 'vintage'], 12000, 12000, 4, NOW(), NOW() + INTERVAL '15 days', TRUE),
-('http://localhost:3000/api/uploads/yoga_mat.jpg','Yoga Mat', 'Eco-friendly material, lightly used.', ARRAY['sports', 'fitness', 'health'], 1500, 1500, 4, NOW(), NOW() + INTERVAL '7 days', TRUE),
+('http://localhost:3000/api/uploads/dining_table.jpg','Wooden Dining Table', 'Seats 6 people, oak wood.', ARRAY['furniture', 'home', 'woodwork', 'vintage'], 12000, 12000, 4, NOW(), NOW() + INTERVAL '15 days', TRUE,
+ '[{"bidder_id":1,"bidder_name":"jakedox","bid_amount":12500,"bid_time":"2025-08-12T09:00:00Z"},{"bidder_id":2,"bidder_name":"luna","bid_amount":13000,"bid_time":"2025-08-12T15:00:00Z"}]'),
+
+('http://localhost:3000/api/uploads/yoga_mat.jpg','Yoga Mat', 'Eco-friendly material, lightly used.', ARRAY['sports', 'fitness', 'health'], 1500, 1500, 4, NOW(), NOW() + INTERVAL '7 days', TRUE,
+ '[]'),
 
 -- User 5: admin
-('http://localhost:3000/api/uploads/diamond_ring.jpg','Diamond Ring', 'Elegant diamond ring, size 7.', ARRAY['jewelry', 'collectibles', 'luxury', 'vintage'], 120000, 120000, 5, NOW(), NOW() + INTERVAL '30 days', TRUE);
+('http://localhost:3000/api/uploads/diamond_ring.jpg','Diamond Ring', 'Elegant diamond ring, size 7.', ARRAY['jewelry', 'collectibles', 'luxury', 'vintage'], 120000, 120000, 5, NOW(), NOW() + INTERVAL '30 days', TRUE,
+ '[{"bidder_id":4,"bidder_name":"sara","bid_amount":125000,"bid_time":"2025-08-10T18:00:00Z"}]');
+
+
+
+INSERT INTO items (
+    image_url, title, description, tags, starting_price, current_price,
+    owner_id, created_at, ends_at, is_verified, bidder_history, recent_bidder
+)
+VALUES
+-- User 1: jakedox
+(
+  'http://localhost:3000/api/uploads/mountain_bike.jpg',
+  'Mountain Bike',
+  'A sturdy mountain bike perfect for trails.',
+  ARRAY['vehicle','sports','outdoors','fitness'],
+  15000, 15500,                              -- latest bid
+  1, NOW(), NOW() + INTERVAL '7 days', TRUE,
+  '[{"bidder_id":2,"bidder_name":"luna","bid_amount":15500,"bid_time":"2025-08-10T10:00:00Z"}]',
+  'luna'                                      -- latest bidder
+),
+
+('http://localhost:3000/api/uploads/leather_jacket.jpg',
+ 'Leather Jacket',
+ 'Classic black leather jacket, size M.',
+ ARRAY['fashion','clothing','vintage'],
+ 8000, 8000,
+ 1, NOW(), NOW() + INTERVAL '5 days', TRUE,
+ '[]',
+ NULL
+),
+
+-- User 2: luna
+(
+  'http://localhost:3000/api/uploads/electric_guitar.jpg',
+  'Electric Guitar',
+  'Fender Stratocaster, barely used.',
+  ARRAY['instruments','music','collectibles','vintage'],
+  35000, 36000,                              -- latest bid
+  2, NOW(), NOW() + INTERVAL '14 days', TRUE,
+  '[{"bidder_id":3,"bidder_name":"mike","bid_amount":36000,"bid_time":"2025-08-11T12:30:00Z"}]',
+  'mike'                                      -- latest bidder
+),
+
+('http://localhost:3000/api/uploads/antique_base.jpg',
+ 'Antique Vase',
+ 'Beautiful hand-painted vintage vase.',
+ ARRAY['vintage','art','collectibles'],
+ 20000, 20000,
+ 2, NOW(), NOW() + INTERVAL '10 days', TRUE,
+ '[]',
+ NULL
+),
+
+-- User 3: mike
+('http://localhost:3000/api/uploads/laptop.jpg',
+ 'Used Laptop',
+ 'Dell Latitude, good for office work.',
+ ARRAY['electronics','computers','office'],
+ 25000, 25000,
+ 3, NOW(), NOW() + INTERVAL '3 days', FALSE,
+ '[]',
+ NULL
+),
+
+-- User 4: sara
+(
+  'http://localhost:3000/api/uploads/dining_table.jpg',
+  'Wooden Dining Table',
+  'Seats 6 people, oak wood.',
+  ARRAY['furniture','home','woodwork','vintage'],
+  12000, 13000,                              -- latest bid (was 12,000, now 13,000)
+  4, NOW(), NOW() + INTERVAL '15 days', TRUE,
+  '[{"bidder_id":1,"bidder_name":"jakedox","bid_amount":12500,"bid_time":"2025-08-12T09:00:00Z"},{"bidder_id":2,"bidder_name":"luna","bid_amount":13000,"bid_time":"2025-08-12T15:00:00Z"}]',
+  'luna'                                      -- latest bidder
+),
+
+('http://localhost:3000/api/uploads/yoga_mat.jpg',
+ 'Yoga Mat',
+ 'Eco-friendly material, lightly used.',
+ ARRAY['sports','fitness','health'],
+ 1500, 1500,
+ 4, NOW(), NOW() + INTERVAL '7 days', TRUE,
+ '[]',
+ NULL
+),
+
+-- User 5: admin
+(
+  'http://localhost:3000/api/uploads/diamond_ring.jpg',
+  'Diamond Ring',
+  'Elegant diamond ring, size 7.',
+  ARRAY['jewelry','collectibles','luxury','vintage'],
+  120000, 125000,                            -- latest bid
+  5, NOW(), NOW() + INTERVAL '30 days', TRUE,
+  '[{"bidder_id":4,"bidder_name":"sara","bid_amount":125000,"bid_time":"2025-08-10T18:00:00Z"}]',
+  'sara'                                      -- latest bidder
+);

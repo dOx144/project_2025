@@ -7,110 +7,118 @@ import ItemSuggestion from "../components/ItemSuggestion";
 import UserRules from "../components/UserRules";
 
 const ItemDetail = () => {
+  const userLoggedIn =
+    JSON.parse(localStorage.getItem("userData")) ||
+    JSON.parse(sessionStorage.getItem("userData"));
 
-    const userLoggedIn = JSON.parse(localStorage.getItem('userData')) || JSON.parse(sessionStorage.getItem('userData'))
+  const { id } = useParams();
+  const [itemData, setItemData] = useState([]);
+  const [suggestedItems, setSuggestItems] = useState([]);
 
-    const {id} = useParams()
-    const [itemData, setItemData] = useState([])
-    const [suggestedItems, setSuggestItems] = useState([]) 
+  const fetchItemData = async () => {
+    const fetchUrl = `http://localhost:3000/api/item/${id.split("=it_id")[1]}`;
 
-    const fetchItemData = async() =>{
-        const fetchUrl = `http://localhost:3000/api/item/${id.split('=it_id')[1]}`
+    try {
+      const req = await fetch(fetchUrl);
 
-        try{
-            const req = await fetch(fetchUrl)
+      if (!req.ok) {
+        throw new Error("Failed Fetching Item Details!");
+      }
+      const data = await req.json();
 
-            if(!req.ok){
-                throw new Error("Failed Fetching Item Details!")
-            }
-            const data = await req.json()
-
-            setItemData(data.item)
-            // console.log(data.item);  
-        }catch(err){
-            console.error(err.message)
-        }
+      setItemData(data.item);
+      // console.log(data.item);
+    } catch (err) {
+      console.error(err.message);
     }
+  };
 
-    const fetchSuggestedItem = async(tagsArray) =>{
-        if(!tagsArray || tagsArray.length === 0) return;
+  const fetchSuggestedItem = async (tagsArray) => {
+    if (!tagsArray || tagsArray.length === 0) return;
 
-        const tagString = tagsArray.join(',')
-        const fetchUrl = `http://localhost:3000/api/suggested-items/${tagString}`
+    const tagString = tagsArray.join(",");
+    const fetchUrl = `http://localhost:3000/api/suggested-items/${tagString}`;
 
-        try{
-            const res = await fetch(fetchUrl)
+    try {
+      const res = await fetch(fetchUrl);
 
-            if(!res.ok){
-                throw new Error("Error Fetching Data")
-            }
+      if (!res.ok) {
+        throw new Error("Error Fetching Data");
+      }
 
-            const data = await res.json()
-            setSuggestItems(data?.result)
-            // console.log(data?.result);
-        }catch(err){
-            console.error(err.message)
-        }
+      const data = await res.json();
+      setSuggestItems(data?.result);
+      // console.log(data?.result);
+    } catch (err) {
+      console.error(err.message);
     }
-    const [items, setItems] = useState([])
-    const [isLoading, setIsLoading] = useState(true)
+  };
+  const [items, setItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-    const fetchData = async() => {
-        setIsLoading(true)
-        try{
-            const res = await fetch("http://localhost:3000/api/auctionItems")
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("http://localhost:3000/api/auctionItems");
 
-            if(!res.ok){
-                throw new Error("Error while fetching data")
-            }
+      if (!res.ok) {
+        throw new Error("Error while fetching data");
+      }
 
-            const data = await res.json()
-            setItems(data.result)
-            // console.log(data.result);
-        }catch(err){
-            console.error(err.message)
-        }finally{
-            setIsLoading(false)
-        }
+      const data = await res.json();
+      setItems(data.result);
+      console.log(data.result);
+    } catch (err) {
+      console.error(err.message);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    useEffect(()=>{
-        fetchData();
-    },[])
+  useEffect(() => {
+    fetchData();
+  }, []);
 
+  useEffect(() => {
+    fetchItemData();
+  }, [id]);
 
-    useEffect(() => {
-        fetchItemData();
-    }, [id]);
-
-    useEffect(() => {
+  useEffect(() => {
     if (itemData?.tags) {
-        fetchSuggestedItem(itemData.tags);
-        }
-    }, [itemData]);
+      fetchSuggestedItem(itemData.tags);
+    }
+  }, [itemData]);
 
+  return (
+    <div className="dark:bg-[#1E1E1E] dark:text-white bg-[#fff] min-h-screen flex flex-col">
+      <UserRules />
+      <div className="flex-grow flex flex-col justify-between items-center space-y-4 w-full max-w-4xl mx-auto px-4 lg:p-0">
+        <Header userLoggedIn={userLoggedIn} items={items} />
 
-    return ( 
-        <div className="dark:bg-[#1E1E1E] dark:text-white bg-[#fff] min-h-screen flex flex-col">
-        <UserRules/>
-        <div className="flex-grow flex flex-col justify-between items-center space-y-4 w-full max-w-4xl mx-auto px-4 lg:p-0">
+        {/* main content */}
+        <main className="flex-grow flex flex-col items-start w-full space-y-4">
+          {/* item detail */}
+          {itemData && (
+            <ItemDetailComponent
+              onUpdate={fetchItemData}
+              data={itemData}
+              userLoggedIn={userLoggedIn}
+            />
+          )}
 
-                <Header userLoggedIn = {userLoggedIn} items = {items}/>
-            
-            {/* main content */}
-            <main className="flex-grow flex flex-col items-start w-full space-y-4">
+          {/* suggested item */}
+          {suggestedItems && (
+            <ItemSuggestion
+              data={suggestedItems}
+              itemId={itemData.id}
+              userLoggedIn={userLoggedIn}
+            />
+          )}
+        </main>
+        <Footer />
+      </div>
+    </div>
+  );
+};
 
-            {/* item detail */}
-            {itemData && <ItemDetailComponent onUpdate = {fetchItemData} data = {itemData} userLoggedIn={userLoggedIn}/>}
-
-            {/* suggested item */}
-            {suggestedItems && <ItemSuggestion data={suggestedItems} itemId ={itemData.id} userLoggedIn ={userLoggedIn}/>}
-            
-            </main>
-            <Footer/>
-        </div>
-        </div>
-     );
-}
- 
 export default ItemDetail;

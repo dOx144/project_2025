@@ -7,7 +7,9 @@ const OwnProfile = ({ userLoggedIn, VerifiedUser }) => {
 
   const fetchUserItems = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/user/` + userLoggedIn.username);
+      const res = await fetch(
+        `http://localhost:3000/api/user/` + userLoggedIn.username
+      );
       if (!res.ok) {
         throw new Error("Failed to fetch user items");
       }
@@ -44,7 +46,9 @@ const OwnProfile = ({ userLoggedIn, VerifiedUser }) => {
   return (
     <div className="space-y-10 w-full">
       <div className="min-w-xl w-2/3 bg-white p-6 shadow-md space-y-4 text-black relative">
-        {isEditing && <OwnProfileEdit handleEdit={handleEdit} userLoggedIn={userLoggedIn} />}
+        {isEditing && (
+          <OwnProfileEdit handleEdit={handleEdit} userLoggedIn={userLoggedIn} />
+        )}
 
         <div className="flex items-center gap-4">
           <img
@@ -88,11 +92,19 @@ const OwnProfile = ({ userLoggedIn, VerifiedUser }) => {
                 <strong>Interests:</strong>
               </p>
               <ul className="list-disc ml-6">
-                {userLoggedIn.user_interest.map((interest, i) => (
-                  <li key={i} className="capitalize">
-                    {interest}
-                  </li>
-                ))}
+                {(Array.isArray(userLoggedIn?.user_interest)
+                  ? userLoggedIn.user_interest
+                  : userLoggedIn?.user_interest
+                      ?.replace(/[{}"]/g, "") // remove curly braces and quotes
+                      .split(",")
+                      .map((i) => i.trim())
+                ) // remove spaces around items
+                  ?.map((interest, i) => (
+                    <li key={i} className="capitalize">
+                      {interest.replace(/_/g, " ")}{" "}
+                      {/* replace underscores with spaces */}
+                    </li>
+                  ))}
               </ul>
             </div>
           ) : (
@@ -118,29 +130,45 @@ const OwnProfile = ({ userLoggedIn, VerifiedUser }) => {
               </tr>
             </thead>
             <tbody>
-{userItems.length > 0 ? (
-  userItems.map((item) => (
-    <tr key={item.id}>
-      <td className="border p-2">{item.id}</td>
+              {userItems.length > 0 ? (
+                userItems.map((item) => (
+                  <tr key={item.id}>
+                    <td className="border p-2">{item.id}</td>
 
-      <td className="border p-2">
-        {item.owner_id +
-          (item.title ? item.title.slice(0, 3) : "NA") +
-          item.id +
-          (item.recent_bidder ? item.recent_bidder.slice(-3) : "NA")}
-      </td>
-      <td className="border p-2">{item.is_verified? new Date(item.ends_at) > new Date() ? "🟢 Bets ongoing" : "❕Please Contact the bid winner❕" : "🟡 Item not verified yet"}</td>
-      <td className="border p-2">{item.title || "N/A"}</td>
-      <td className="border p-2">{item.starting_price || item.set_price || "N/A"}</td>
-      <td className="border p-2">{item.current_price || item.set_price || "N/A"}</td>
-      <td className="border p-2">{item.recent_bidder || "N/A"}</td>
-    </tr>
-  ))
-) : (
-  <tr>
-    <td className="border p-2 text-center" colSpan={6}>No items available</td>
-  </tr>
-)}
+                    <td className="border p-2">
+                      {item.owner_id +
+                        (item.title ? item.title.slice(0, 3) : "NA") +
+                        item.id +
+                        (item.recent_bidder
+                          ? item.recent_bidder.slice(-3)
+                          : "NA")}
+                    </td>
+                    <td className="border p-2">
+                      {item.is_verified
+                        ? new Date(item.ends_at) > new Date()
+                          ? "🟢 Bets ongoing"
+                          : "❕Please Contact the bid winner❕"
+                        : "🟡 Item not verified yet"}
+                    </td>
+                    <td className="border p-2">{item.title || "N/A"}</td>
+                    <td className="border p-2">
+                      {item.starting_price || item.set_price || "N/A"}
+                    </td>
+                    <td className="border p-2">
+                      {item.current_price || item.set_price || "N/A"}
+                    </td>
+                    <td className="border p-2">
+                      {item.recent_bidder || "N/A"}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td className="border p-2 text-center" colSpan={7}>
+                    No items available
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -178,7 +206,10 @@ const OwnProfile = ({ userLoggedIn, VerifiedUser }) => {
                   Rs. {totalSetRevenue ? totalSetRevenue.toFixed(2) : "N/A"}
                 </td>
                 <td className="border p-2">
-                  Rs. {totalEstimatedRevenue ? totalEstimatedRevenue.toFixed(2) : "N/A"}
+                  Rs.{" "}
+                  {totalEstimatedRevenue
+                    ? totalEstimatedRevenue.toFixed(2)
+                    : "N/A"}
                 </td>
               </tr>
             </tbody>
@@ -224,7 +255,9 @@ const OwnProfile = ({ userLoggedIn, VerifiedUser }) => {
             </h2>
             {userItems
               .filter((el) => el.is_verified)
-              .map((el, idx) => <UserItems el={el} key={idx} />)}
+              .map((el, idx) => (
+                <UserItems el={el} key={idx} />
+              ))}
           </>
         )}
       </div>

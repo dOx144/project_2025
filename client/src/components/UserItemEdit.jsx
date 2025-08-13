@@ -14,8 +14,8 @@ const UserItemEdit = ({ el, handleEdit }) => {
   };
 
   const handleSave = () => {
-    handleEdit()
-  }
+    handleEdit();
+  };
 
   return (
     <div className="absolute top-0 left-0 grid w-full h-full place-content-center bg-slate-50/60 backdrop-blur-[2px] z-10">
@@ -56,9 +56,10 @@ const UserItemEdit = ({ el, handleEdit }) => {
           />
         </div>
 
-        <button 
-        onClick={handleSave}
-        className="w-full p-2 ring-1 hover:bg-green-400 hover:font-semibold hover:text-white hover:ring-0 transition-all">
+        <button
+          onClick={handleSave}
+          className="w-full p-2 ring-1 hover:bg-green-400 hover:font-semibold hover:text-white hover:ring-0 transition-all"
+        >
           Save
         </button>
       </div>
